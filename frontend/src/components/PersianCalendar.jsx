@@ -53,24 +53,23 @@ export default function PersianCalendar({ reports, onSelectDate, selectedDate })
   const selectedJ = selectedDate ? toJalaali(selectedDate) : null
 
   return (
-    <div className="bg-white rounded-xl shadow p-3 lg:p-4 w-full">
-      {/* هدر */}
-      <div className="flex items-center justify-between mb-3">
-        <button onClick={nextMonth} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 text-lg">&#8249;</button>
-        <span className="font-bold text-gray-800 text-sm lg:text-base">
+    <div className="glass-card p-4 lg:p-5 w-full">
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={nextMonth}
+          className="p-2 hover:bg-white/10 rounded-xl text-slate-400 text-lg transition-colors">&#8249;</button>
+        <span className="font-bold text-white text-sm lg:text-base">
           {J_MONTHS[currentJM-1]} {currentJY}
         </span>
-        <button onClick={prevMonth} className="p-2 hover:bg-gray-100 rounded-lg text-gray-600 text-lg">&#8250;</button>
+        <button onClick={prevMonth}
+          className="p-2 hover:bg-white/10 rounded-xl text-slate-400 text-lg transition-colors">&#8250;</button>
       </div>
 
-      {/* روزهای هفته */}
-      <div className="grid grid-cols-7 mb-1">
+      <div className="grid grid-cols-7 mb-2">
         {WEEK_DAYS.map(d => (
-          <div key={d} className="text-center text-xs font-medium text-gray-400 py-1">{d}</div>
+          <div key={d} className="text-center text-xs font-medium text-slate-500 py-1">{d}</div>
         ))}
       </div>
 
-      {/* روزها */}
       <div className="grid grid-cols-7 gap-0.5 lg:gap-1">
         {cells.map((day, idx) => {
           if (!day) return <div key={idx} />
@@ -81,35 +80,34 @@ export default function PersianCalendar({ reports, onSelectDate, selectedDate })
           const isSelected = selectedJ && currentJY===selectedJ.jy && currentJM===selectedJ.jm && day===selectedJ.jd
           const status = reportMap[gDate]
 
-          let cls = 'hover:bg-gray-100 text-gray-700'
-          if (isFuture) cls = 'opacity-25 cursor-not-allowed text-gray-400'
-          else if (isSelected) cls = 'bg-blue-600 text-white'
-          else if (status === 'approved') cls = 'bg-green-100 text-green-800 hover:bg-green-200'
-          else if (status === 'submitted') cls = 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-          else if (status === 'draft') cls = 'bg-orange-100 text-orange-800 hover:bg-orange-200'
+          let cls = 'hover:bg-white/10 text-slate-300'
+          if (isFuture) cls = 'opacity-25 cursor-not-allowed text-slate-600'
+          else if (isSelected) cls = 'bg-blue-500/30 text-blue-200 border border-blue-500/30'
+          else if (status === 'approved') cls = 'bg-green-500/15 text-green-300 hover:bg-green-500/25'
+          else if (status === 'submitted') cls = 'bg-blue-500/15 text-blue-300 hover:bg-blue-500/25'
+          else if (status === 'draft') cls = 'bg-orange-500/15 text-orange-300 hover:bg-orange-500/25'
 
           return (
             <button key={idx} onClick={() => !isFuture && handleDayClick(day)}
               className={`aspect-square flex items-center justify-center text-xs lg:text-sm rounded-lg transition-all relative ${cls}`}>
               {day}
               {isToday && !isSelected && (
-                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-500" />
+                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-blue-400" />
               )}
             </button>
           )
         })}
       </div>
 
-      {/* راهنما */}
-      <div className="flex gap-2 mt-3 pt-2 border-t flex-wrap">
+      <div className="flex gap-3 mt-4 pt-3 border-t border-white/10 flex-wrap">
         {[
-          ['bg-blue-100','ارسال شده'],
-          ['bg-green-100','تایید شده'],
-          ['bg-orange-100','پیش‌نویس'],
+          ['bg-blue-500/20','ارسال شده'],
+          ['bg-green-500/20','تایید شده'],
+          ['bg-orange-500/20','پیش‌نویس'],
         ].map(([bg, label]) => (
-          <div key={label} className="flex items-center gap-1">
+          <div key={label} className="flex items-center gap-1.5">
             <div className={`w-2.5 h-2.5 rounded ${bg}`} />
-            <span className="text-xs text-gray-400">{label}</span>
+            <span className="text-xs text-slate-400">{label}</span>
           </div>
         ))}
       </div>

@@ -17,12 +17,12 @@ export default function Dashboard() {
   const isAdmin = user?.is_system_admin || user?.role === 'superadmin'
 
   const menuItems = [
-    { key: 'home', label: '🏠 خانه', show: true },
-    { key: 'submit-report', label: '📝 گزارش کار', show: true },
-    { key: 'manager-dashboard', label: '📊 داشبورد مدیریت', show: isManager },
-    { key: 'company-dashboard', label: '🏢 گزارش شرکت', show: isCompanyManager },
-    { key: 'admin', label: '⚙️ مدیریت سیستم', show: isAdmin },
-    { key: 'profile', label: '👤 پروفایل', show: true },
+    { key: 'home', label: 'خانه', icon: '🏠', show: true },
+    { key: 'submit-report', label: 'گزارش کار', icon: '📝', show: true },
+    { key: 'manager-dashboard', label: 'داشبورد مدیریت', icon: '📊', show: isManager },
+    { key: 'company-dashboard', label: 'گزارش شرکت', icon: '🏢', show: isCompanyManager },
+    { key: 'admin', label: 'مدیریت سیستم', icon: '⚙️', show: isAdmin },
+    { key: 'profile', label: 'پروفایل', icon: '👤', show: true },
   ]
 
   const navigate = (key) => {
@@ -31,66 +31,79 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <nav className="bg-blue-700 text-white px-4 py-3 flex justify-between items-center shadow sticky top-0 z-40">
+    <div className="min-h-screen flex flex-col">
+      {/* Navbar */}
+      <nav className="glass-strong sticky top-0 z-40 px-4 py-3 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <button onClick={() => setSidebarOpen(o => !o)}
-            className="lg:hidden p-2 rounded-lg hover:bg-blue-600 transition-colors">
-            <div className="w-5 h-0.5 bg-white mb-1"></div>
-            <div className="w-5 h-0.5 bg-white mb-1"></div>
-            <div className="w-5 h-0.5 bg-white"></div>
+            className="lg:hidden p-2 rounded-xl hover:bg-white/10 transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
           </button>
-          <h1 className="text-base lg:text-lg font-bold">{appConfig.app_title}</h1>
+          <h1 className="text-base lg:text-lg font-bold text-gradient">{appConfig.app_title}</h1>
         </div>
-        <div className="flex items-center gap-2 lg:gap-4">
-          <span className="text-sm hidden sm:block">{user?.full_name}</span>
-          <span className="text-xs bg-blue-600 px-2 py-0.5 rounded-full hidden sm:block">{roleLabels[user?.role]}</span>
-          <button onClick={logout} className="bg-blue-800 hover:bg-blue-900 px-3 py-1 rounded text-sm">خروج</button>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-slate-300 hidden sm:block">{user?.full_name}</span>
+          <span className="badge badge-blue hidden sm:block">{roleLabels[user?.role]}</span>
+          <button onClick={logout}
+            className="glass-btn-secondary px-4 py-1.5 rounded-xl text-sm">
+            خروج
+          </button>
         </div>
       </nav>
 
       <div className="flex flex-1 relative">
+        {/* Mobile overlay */}
         {sidebarOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-40 z-30 lg:hidden"
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 lg:hidden"
             onClick={() => setSidebarOpen(false)} />
         )}
 
+        {/* Sidebar */}
         <aside className={`
-          fixed lg:static top-0 right-0 h-full w-56 bg-white shadow-lg lg:shadow-sm
-          border-l border-gray-200 p-4 z-40 transition-transform duration-300
+          fixed lg:static top-0 right-0 h-full w-60 z-40
+          glass-strong rounded-l-2xl lg:rounded-none
+          transition-transform duration-300 ease-out
           ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-          pt-16 lg:pt-4
+          pt-16 lg:pt-4 px-3 pb-4
         `}>
-          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100 lg:hidden">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+          {/* User card - mobile only */}
+          <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-white/5 lg:hidden">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center text-blue-300 font-bold text-sm">
               {user?.full_name?.charAt(0)}
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-800">{user?.full_name}</p>
-              <p className="text-xs text-gray-500">{roleLabels[user?.role]}</p>
+              <p className="text-sm font-medium text-white">{user?.full_name}</p>
+              <p className="text-xs text-slate-400">{roleLabels[user?.role]}</p>
             </div>
           </div>
+
           <ul className="space-y-1">
             {menuItems.filter(m => m.show).map(item => (
               <li key={item.key}>
                 <button onClick={() => navigate(item.key)}
-                  className={`w-full text-right px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
                     activePage === item.key
-                      ? 'bg-blue-50 text-blue-700 font-medium'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-white/10 text-white font-medium'
+                      : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                   }`}>
-                  {item.label}
+                  <span className="text-base">{item.icon}</span>
+                  <span>{item.label}</span>
                 </button>
               </li>
             ))}
           </ul>
         </aside>
 
+        {/* Main content */}
         <main className="flex-1 p-4 lg:p-6 min-w-0">
           {activePage === 'home' && (
-            <div className="bg-white rounded-xl shadow p-6">
-              <h2 className="text-xl font-bold text-gray-800 mb-2">خوش آمدید، {user?.full_name}</h2>
-              <p className="text-gray-500 text-sm">{appConfig.company_name} — از منوی سمت راست گزینه مورد نظر را انتخاب کنید.</p>
+            <div className="glass-card p-6 lg:p-8">
+              <h2 className="text-xl lg:text-2xl font-bold text-white mb-2">
+                خوش آمدید، <span className="text-gradient">{user?.full_name}</span>
+              </h2>
+              <p className="text-slate-400 text-sm">{appConfig.company_name} — از منوی سمت راست گزینه مورد نظر را انتخاب کنید.</p>
             </div>
           )}
           {activePage === 'submit-report' && <SubmitReport />}

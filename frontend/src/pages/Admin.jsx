@@ -4,6 +4,13 @@ import RelationsTab from '../components/RelationsTab'
 import Toast from '../components/Toast'
 import { roleLabels, roleColors } from '../utils/roles'
 
+const glassRoleColors = {
+  superadmin: 'badge-purple',
+  company_manager: 'badge-blue',
+  manager: 'badge-green',
+  staff: 'badge-gray',
+}
+
 export default function Admin() {
   const [tab, setTab] = useState('departments')
   const [users, setUsers] = useState([])
@@ -106,12 +113,14 @@ export default function Admin() {
     <div className="space-y-4">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      <h2 className="text-xl font-bold text-gray-800">پنل مدیریت سیستم</h2>
+      <h2 className="text-xl font-bold text-white">پنل مدیریت سیستم</h2>
 
-      <div className="flex gap-2 border-b border-gray-200">
+      <div className="flex gap-1 border-b border-white/10">
         {[['departments','🏢 واحدها'],['users','👥 کاربران'],['relations','🔗 روابط']].map(([k,l]) => (
           <button key={k} onClick={() => setTab(k)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab===k ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+            className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+              tab===k ? 'border-blue-400 text-blue-300' : 'border-transparent text-slate-500 hover:text-slate-300'
+            }`}>
             {l}
           </button>
         ))}
@@ -119,38 +128,38 @@ export default function Admin() {
 
       {tab==='departments' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl shadow p-6">
-            <h3 className="font-medium text-gray-700 mb-4 border-b pb-2">{editDept ? `ویرایش: ${editDept.name}` : 'ایجاد واحد جدید'}</h3>
-            <form onSubmit={saveDept} className="space-y-3">
+          <div className="glass-card p-6">
+            <h3 className="font-medium text-white mb-4 border-b border-white/10 pb-3">{editDept ? `ویرایش: ${editDept.name}` : 'ایجاد واحد جدید'}</h3>
+            <form onSubmit={saveDept} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">نام واحد</label>
+                <label className="block text-sm text-slate-400 mb-2">نام واحد</label>
                 <input type="text" required value={deptForm.name} onChange={e => setDeptForm({...deptForm, name: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="glass-input w-full px-3 py-2.5 text-sm" />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">توضیحات</label>
+                <label className="block text-sm text-slate-400 mb-2">توضیحات</label>
                 <input type="text" value={deptForm.description} onChange={e => setDeptForm({...deptForm, description: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="glass-input w-full px-3 py-2.5 text-sm" />
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm hover:bg-blue-700">{editDept ? 'ذخیره تغییرات' : 'ایجاد واحد'}</button>
-                {editDept && <button type="button" onClick={() => { setEditDept(null); setDeptForm({name:'',description:''}) }} className="px-4 bg-gray-200 text-gray-700 rounded-lg text-sm">انصراف</button>}
+                <button type="submit" className="flex-1 glass-btn py-2.5 text-sm">{editDept ? 'ذخیره تغییرات' : 'ایجاد واحد'}</button>
+                {editDept && <button type="button" onClick={() => { setEditDept(null); setDeptForm({name:'',description:''}) }} className="glass-btn-secondary px-4 py-2.5 text-sm">انصراف</button>}
               </div>
             </form>
           </div>
-          <div className="bg-white rounded-xl shadow p-6">
-            <h3 className="font-medium text-gray-700 mb-4 border-b pb-2">واحدها ({departments.length})</h3>
+          <div className="glass-card p-6">
+            <h3 className="font-medium text-white mb-4 border-b border-white/10 pb-3">واحدها ({departments.length})</h3>
             <div className="space-y-2 max-h-80 overflow-y-auto">
               {departments.map(d => (
-                <div key={d.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={d.id} className="flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/8 transition-colors">
                   <div>
-                    <p className="text-sm font-medium text-gray-800">{d.name}</p>
-                    {d.description && <p className="text-xs text-gray-500">{d.description}</p>}
+                    <p className="text-sm font-medium text-white">{d.name}</p>
+                    {d.description && <p className="text-xs text-slate-500">{d.description}</p>}
                   </div>
                   <div className="flex gap-2 items-center">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${d.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>{d.is_active ? 'فعال' : 'غیرفعال'}</span>
-                    <button onClick={() => { setEditDept(d); setDeptForm({name:d.name,description:d.description||''}) }} className="text-blue-500 text-xs px-2 py-1 rounded hover:bg-blue-50">ویرایش</button>
-                    <button onClick={() => deleteDept(d.id)} className="text-red-400 text-xs px-2 py-1 rounded hover:bg-red-50">حذف</button>
+                    <span className={`badge ${d.is_active ? 'badge-green' : 'badge-red'}`}>{d.is_active ? 'فعال' : 'غیرفعال'}</span>
+                    <button onClick={() => { setEditDept(d); setDeptForm({name:d.name,description:d.description||''}) }} className="text-blue-400 text-xs px-2 py-1 rounded-lg hover:bg-white/10">ویرایش</button>
+                    <button onClick={() => deleteDept(d.id)} className="text-red-400 text-xs px-2 py-1 rounded-lg hover:bg-white/10">حذف</button>
                   </div>
                 </div>
               ))}
@@ -161,56 +170,56 @@ export default function Admin() {
 
       {tab==='users' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl shadow p-6">
-            <h3 className="font-medium text-gray-700 mb-4 border-b pb-2">ایجاد کاربر جدید</h3>
-            <form onSubmit={createUser} className="space-y-3">
+          <div className="glass-card p-6">
+            <h3 className="font-medium text-white mb-4 border-b border-white/10 pb-3">ایجاد کاربر جدید</h3>
+            <form onSubmit={createUser} className="space-y-4">
               {[['full_name','نام و نام خانوادگی','text'],['username','نام کاربری','text'],['password','رمز عبور اولیه','password']].map(([f,l,t]) => (
                 <div key={f}>
-                  <label className="block text-sm text-gray-600 mb-1">{l}</label>
+                  <label className="block text-sm text-slate-400 mb-2">{l}</label>
                   <input type={t} required value={userForm[f]} onChange={e => setUserForm({...userForm,[f]:e.target.value})}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    className="glass-input w-full px-3 py-2.5 text-sm" />
                 </div>
               ))}
               <div>
-                <label className="block text-sm text-gray-600 mb-1">نقش اصلی</label>
+                <label className="block text-sm text-slate-400 mb-2">نقش اصلی</label>
                 <select value={userForm.role} onChange={e => setUserForm({...userForm,role:e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="company_manager">مدیر شرکت</option>
-                  <option value="manager">مدیر واحد</option>
-                  <option value="staff">پرسنل</option>
+                  className="glass-input w-full px-3 py-2.5 text-sm">
+                  <option value="company_manager" className="bg-slate-800">مدیر شرکت</option>
+                  <option value="manager" className="bg-slate-800">مدیر واحد</option>
+                  <option value="staff" className="bg-slate-800">پرسنل</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">واحد</label>
+                <label className="block text-sm text-slate-400 mb-2">واحد</label>
                 <select value={userForm.department_id} onChange={e => setUserForm({...userForm,department_id:e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">بدون واحد</option>
-                  {activeDepts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  className="glass-input w-full px-3 py-2.5 text-sm">
+                  <option value="" className="bg-slate-800">بدون واحد</option>
+                  {activeDepts.map(d => <option key={d.id} value={d.id} className="bg-slate-800">{d.name}</option>)}
                 </select>
               </div>
-              <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg">
-                <input type="checkbox" id="new_is_admin" checked={userForm.is_system_admin} onChange={e => setUserForm({...userForm,is_system_admin:e.target.checked})} className="w-4 h-4 accent-purple-600" />
-                <label htmlFor="new_is_admin" className="text-sm text-purple-700 font-medium">دسترسی ادمین سیستم</label>
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                <input type="checkbox" id="new_is_admin" checked={userForm.is_system_admin} onChange={e => setUserForm({...userForm,is_system_admin:e.target.checked})} className="w-4 h-4 accent-purple-500" />
+                <label htmlFor="new_is_admin" className="text-sm text-purple-300 font-medium">دسترسی ادمین سیستم</label>
               </div>
-              <button type="submit" className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm hover:bg-blue-700">ایجاد کاربر</button>
+              <button type="submit" className="glass-btn w-full py-2.5 text-sm">ایجاد کاربر</button>
             </form>
           </div>
-          <div className="bg-white rounded-xl shadow p-6">
-            <h3 className="font-medium text-gray-700 mb-4 border-b pb-2">کاربران ({users.length})</h3>
+          <div className="glass-card p-6">
+            <h3 className="font-medium text-white mb-4 border-b border-white/10 pb-3">کاربران ({users.length})</h3>
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {users.map(u => (
-                <div key={u.id} className="p-3 bg-gray-50 rounded-lg">
+                <div key={u.id} className="p-3 rounded-xl bg-white/5 hover:bg-white/8 transition-colors">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-800">{u.full_name}</p>
-                      <p className="text-xs text-gray-500">{u.username}{u.department_name && ` | ${u.department_name}`}</p>
+                      <p className="text-sm font-medium text-white">{u.full_name}</p>
+                      <p className="text-xs text-slate-500">{u.username}{u.department_name && ` | ${u.department_name}`}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-wrap justify-end">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${roleColors[u.role]}`}>{roleLabels[u.role]}</span>
-                      {u.is_system_admin && <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">ادمین</span>}
-                      {!u.is_active && <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-600">غیرفعال</span>}
-                      <button onClick={() => openEdit(u)} className="text-blue-500 text-xs px-2 py-1 rounded hover:bg-blue-50">ویرایش</button>
-                      <button onClick={() => deleteUser(u.id,u.full_name)} className="text-red-400 text-xs px-2 py-1 rounded hover:bg-red-50">حذف</button>
+                      <span className={`badge ${glassRoleColors[u.role]}`}>{roleLabels[u.role]}</span>
+                      {u.is_system_admin && <span className="badge badge-purple">ادمین</span>}
+                      {!u.is_active && <span className="badge badge-red">غیرفعال</span>}
+                      <button onClick={() => openEdit(u)} className="text-blue-400 text-xs px-2 py-1 rounded-lg hover:bg-white/10">ویرایش</button>
+                      <button onClick={() => deleteUser(u.id,u.full_name)} className="text-red-400 text-xs px-2 py-1 rounded-lg hover:bg-white/10">حذف</button>
                     </div>
                   </div>
                 </div>
@@ -221,49 +230,49 @@ export default function Admin() {
       )}
 
       {editUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4">
-            <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">ویرایش: {editUser.full_name}</h3>
-            <form onSubmit={saveUser} className="space-y-3">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="glass-strong rounded-3xl p-6 w-full max-w-md mx-4">
+            <h3 className="font-bold text-white mb-4 border-b border-white/10 pb-3">ویرایش: {editUser.full_name}</h3>
+            <form onSubmit={saveUser} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">نام و نام خانوادگی</label>
+                <label className="block text-sm text-slate-400 mb-2">نام و نام خانوادگی</label>
                 <input type="text" value={editUserForm.full_name} onChange={e => setEditUserForm({...editUserForm,full_name:e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="glass-input w-full px-3 py-2.5 text-sm" />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">نقش اصلی</label>
+                <label className="block text-sm text-slate-400 mb-2">نقش اصلی</label>
                 <select value={editUserForm.role} onChange={e => setEditUserForm({...editUserForm,role:e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="company_manager">مدیر شرکت</option>
-                  <option value="manager">مدیر واحد</option>
-                  <option value="staff">پرسنل</option>
+                  className="glass-input w-full px-3 py-2.5 text-sm">
+                  <option value="company_manager" className="bg-slate-800">مدیر شرکت</option>
+                  <option value="manager" className="bg-slate-800">مدیر واحد</option>
+                  <option value="staff" className="bg-slate-800">پرسنل</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">واحد</label>
+                <label className="block text-sm text-slate-400 mb-2">واحد</label>
                 <select value={editUserForm.department_id} onChange={e => setEditUserForm({...editUserForm,department_id:e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">بدون واحد</option>
-                  {activeDepts.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  className="glass-input w-full px-3 py-2.5 text-sm">
+                  <option value="" className="bg-slate-800">بدون واحد</option>
+                  {activeDepts.map(d => <option key={d.id} value={d.id} className="bg-slate-800">{d.name}</option>)}
                 </select>
               </div>
               <div className="flex items-center gap-2">
-                <input type="checkbox" id="edit_active" checked={editUserForm.is_active} onChange={e => setEditUserForm({...editUserForm,is_active:e.target.checked})} className="w-4 h-4" />
-                <label htmlFor="edit_active" className="text-sm text-gray-600">حساب فعال باشد</label>
+                <input type="checkbox" id="edit_active" checked={editUserForm.is_active} onChange={e => setEditUserForm({...editUserForm,is_active:e.target.checked})} className="w-4 h-4 accent-blue-500" />
+                <label htmlFor="edit_active" className="text-sm text-slate-400">حساب فعال باشد</label>
               </div>
-              <div className="flex items-center gap-2 p-3 bg-purple-50 rounded-lg">
-                <input type="checkbox" id="edit_admin" checked={editUserForm.is_system_admin} onChange={e => setEditUserForm({...editUserForm,is_system_admin:e.target.checked})} className="w-4 h-4 accent-purple-600" />
-                <label htmlFor="edit_admin" className="text-sm text-purple-700 font-medium">دسترسی ادمین سیستم</label>
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                <input type="checkbox" id="edit_admin" checked={editUserForm.is_system_admin} onChange={e => setEditUserForm({...editUserForm,is_system_admin:e.target.checked})} className="w-4 h-4 accent-purple-500" />
+                <label htmlFor="edit_admin" className="text-sm text-purple-300 font-medium">دسترسی ادمین سیستم</label>
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">رمز عبور جدید (اختیاری)</label>
+                <label className="block text-sm text-slate-400 mb-2">رمز عبور جدید (اختیاری)</label>
                 <input type="password" value={editUserForm.new_password} onChange={e => setEditUserForm({...editUserForm,new_password:e.target.value})}
                   placeholder="خالی بگذارید تا تغییر نکند"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  className="glass-input w-full px-3 py-2.5 text-sm" />
               </div>
               <div className="flex gap-2 pt-2">
-                <button type="submit" className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm hover:bg-blue-700">ذخیره تغییرات</button>
-                <button type="button" onClick={() => setEditUser(null)} className="flex-1 bg-gray-200 text-gray-700 rounded-lg py-2 text-sm">انصراف</button>
+                <button type="submit" className="flex-1 glass-btn py-2.5 text-sm">ذخیره تغییرات</button>
+                <button type="button" onClick={() => setEditUser(null)} className="flex-1 glass-btn-secondary py-2.5 text-sm">انصراف</button>
               </div>
             </form>
           </div>

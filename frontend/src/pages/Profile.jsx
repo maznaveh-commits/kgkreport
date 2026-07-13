@@ -49,89 +49,87 @@ export default function Profile() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <h2 className="text-xl font-bold text-gray-800">پروفایل کاربری</h2>
+      <h2 className="text-xl font-bold text-white">پروفایل کاربری</h2>
 
-      {/* اطلاعات کاربر */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="glass-card p-6">
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl font-bold text-blue-700">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/30 to-purple-500/30 flex items-center justify-center text-2xl font-bold text-blue-300 border border-white/10">
             {user?.full_name?.charAt(0)}
           </div>
           <div>
-            <p className="font-bold text-gray-800 text-lg">{user?.full_name}</p>
-            <p className="text-gray-500 text-sm">{user?.username}</p>
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+            <p className="font-bold text-white text-lg">{user?.full_name}</p>
+            <p className="text-slate-400 text-sm">{user?.username}</p>
+            <span className="badge badge-blue mt-1">
               {roleLabels[user?.role] || user?.role}
             </span>
           </div>
         </div>
 
         <form onSubmit={updateProfile} className="space-y-4">
-          <h3 className="font-medium text-gray-700 border-b pb-2">ویرایش اطلاعات</h3>
+          <h3 className="font-medium text-white border-b border-white/10 pb-3">ویرایش اطلاعات</h3>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">نام و نام خانوادگی</label>
+            <label className="block text-sm text-slate-400 mb-2">نام و نام خانوادگی</label>
             <input
               type="text"
               value={fullName}
               onChange={e => setFullName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="glass-input w-full px-4 py-2.5 text-sm"
               required
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">نام کاربری</label>
+            <label className="block text-sm text-slate-400 mb-2">نام کاربری</label>
             <input
               type="text"
               value={user?.username}
               disabled
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-400"
+              className="glass-input w-full px-4 py-2.5 text-sm opacity-50 cursor-not-allowed"
             />
           </div>
-          {msg.profile && <p className="text-green-600 text-sm">{msg.profile}</p>}
-          {err.profile && <p className="text-red-600 text-sm">{err.profile}</p>}
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+          {msg.profile && <p className="text-green-400 text-sm">{msg.profile}</p>}
+          {err.profile && <p className="text-red-400 text-sm">{err.profile}</p>}
+          <button type="submit" className="glass-btn px-6 py-2.5 text-sm">
             ذخیره تغییرات
           </button>
         </form>
       </div>
 
-      {/* تغییر رمز عبور */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="glass-card p-6">
         <form onSubmit={changePassword} className="space-y-4">
-          <h3 className="font-medium text-gray-700 border-b pb-2">تغییر رمز عبور</h3>
+          <h3 className="font-medium text-white border-b border-white/10 pb-3">تغییر رمز عبور</h3>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">رمز عبور فعلی</label>
+            <label className="block text-sm text-slate-400 mb-2">رمز عبور فعلی</label>
             <input
               type="password"
               value={passwords.current_password}
               onChange={e => setPasswords({...passwords, current_password: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="glass-input w-full px-4 py-2.5 text-sm"
               required
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">رمز عبور جدید</label>
+            <label className="block text-sm text-slate-400 mb-2">رمز عبور جدید</label>
             <input
               type="password"
               value={passwords.new_password}
               onChange={e => setPasswords({...passwords, new_password: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="glass-input w-full px-4 py-2.5 text-sm"
               required
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">تکرار رمز عبور جدید</label>
+            <label className="block text-sm text-slate-400 mb-2">تکرار رمز عبور جدید</label>
             <input
               type="password"
               value={passwords.confirm}
               onChange={e => setPasswords({...passwords, confirm: e.target.value})}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="glass-input w-full px-4 py-2.5 text-sm"
               required
             />
           </div>
-          {msg.password && <p className="text-green-600 text-sm">{msg.password}</p>}
-          {err.password && <p className="text-red-600 text-sm">{err.password}</p>}
-          <button type="submit" className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 text-sm">
+          {msg.password && <p className="text-green-400 text-sm">{msg.password}</p>}
+          {err.password && <p className="text-red-400 text-sm">{err.password}</p>}
+          <button type="submit" className="glass-btn px-6 py-2.5 text-sm">
             تغییر رمز عبور
           </button>
         </form>

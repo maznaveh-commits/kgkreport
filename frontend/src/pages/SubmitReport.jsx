@@ -162,28 +162,27 @@ export default function SubmitReport() {
   }
 
   const statusBadge = (status) => {
-    if (status === 'approved') return <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">✓ تایید شده</span>
-    if (status === 'submitted') return <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">📤 ارسال شده</span>
-    return <span className="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">✏️ پیش‌نویس</span>
+    if (status === 'approved') return <span className="badge badge-green">✓ تایید شده</span>
+    if (status === 'submitted') return <span className="badge badge-blue">📤 ارسال شده</span>
+    return <span className="badge badge-orange">✏️ پیش‌نویس</span>
   }
 
   return (
     <div className="space-y-4 max-w-4xl mx-auto">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      <h2 className="text-lg lg:text-xl font-bold text-gray-800">گزارش کار روزانه</h2>
+      <h2 className="text-lg lg:text-xl font-bold text-white">گزارش کار روزانه</h2>
 
-      {/* انتخاب مدیر */}
-      <div className="bg-white rounded-xl shadow p-4">
-        <h3 className="font-medium text-gray-700 mb-3 border-b pb-2 text-sm">انتخاب مدیر / واحد</h3>
-        {managers.length === 0 && <p className="text-sm text-gray-400">هنوز به هیچ مدیری متصل نشده‌اید.</p>}
+      <div className="glass-card p-4">
+        <h3 className="font-medium text-white mb-3 border-b border-white/10 pb-3 text-sm">انتخاب مدیر / واحد</h3>
+        {managers.length === 0 && <p className="text-sm text-slate-500">هنوز به هیچ مدیری متصل نشده‌اید.</p>}
         <div className="flex gap-2 flex-wrap">
           {managers.map(m => (
             <button key={m.id} onClick={() => selectManager(m)}
-              className={`px-4 py-2 rounded-xl border-2 text-sm transition-all ${
+              className={`px-4 py-2.5 rounded-xl text-sm transition-all ${
                 selectedManager?.id === m.id
-                  ? 'border-blue-500 bg-blue-50 text-blue-700 font-medium'
-                  : 'border-gray-200 hover:border-blue-300 text-gray-700'
+                  ? 'glass-btn font-medium'
+                  : 'glass-btn-secondary'
               }`}>
               {m.full_name}
             </button>
@@ -193,79 +192,74 @@ export default function SubmitReport() {
 
       {selectedManager && (
         <div className="space-y-4">
-          {/* تقویم — تمام عرض */}
           <PersianCalendar reports={allReports} onSelectDate={selectDate} selectedDate={selectedDate} />
 
-          {/* محتوای روز */}
           {!selectedDate ? (
-            <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">
+            <div className="glass-card p-8 text-center">
               <p className="text-3xl mb-2">📅</p>
-              <p className="text-sm">یک روز از تقویم انتخاب کنید</p>
+              <p className="text-sm text-slate-400">یک روز از تقویم انتخاب کنید</p>
             </div>
           ) : (
             <div className="space-y-4">
-              {/* هدر روز */}
-              <div className="bg-white rounded-xl shadow p-4">
+              <div className="glass-card p-4">
                 <div className="flex items-start justify-between gap-2 flex-wrap">
                   <div>
-                    <p className="font-bold text-gray-800">{toJalali(selectedDate)}</p>
-                    {currentReport && <div className="mt-1">{statusBadge(currentReport.status)}</div>}
+                    <p className="font-bold text-white">{toJalali(selectedDate)}</p>
+                    {currentReport && <div className="mt-2">{statusBadge(currentReport.status)}</div>}
                   </div>
                   <div className="flex gap-2 flex-wrap">
                     {isDraft && pendingItems.length > 0 && (
                       <button onClick={() => setShowPending(p => !p)}
-                        className="text-xs px-3 py-1.5 border border-orange-300 text-orange-600 rounded-lg">
+                        className="glass-btn-secondary text-xs px-3 py-1.5 rounded-xl">
                         ناتمام ({pendingItems.length})
                       </button>
                     )}
                     {isDraft && (
                       <button onClick={addNewItem}
-                        className="text-xs px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        className="glass-btn text-xs px-3 py-1.5 rounded-xl">
                         + اقدام
                       </button>
                     )}
                     {isDraft && items.length > 0 && (
                       <button onClick={submitReport} disabled={loading}
-                        className="text-xs px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50">
+                        className="glass-btn-success text-xs px-3 py-1.5 rounded-xl disabled:opacity-50">
                         ✓ پایان روز
                       </button>
                     )}
                     {isSubmitted && (
                       <button onClick={revertReport} disabled={loading}
-                        className="text-xs px-3 py-1.5 border border-gray-300 text-gray-600 rounded-lg disabled:opacity-50">
+                        className="glass-btn-secondary text-xs px-3 py-1.5 rounded-xl disabled:opacity-50">
                         ↩ پیش‌نویس
                       </button>
                     )}
                   </div>
                 </div>
-                {isSubmitted && <p className="text-xs text-blue-600 mt-2">در انتظار تایید مدیر</p>}
-                {isApproved && <p className="text-xs text-green-600 mt-2">تایید شده — قابل ویرایش نیست</p>}
+                {isSubmitted && <p className="text-xs text-blue-400 mt-2">در انتظار تایید مدیر</p>}
+                {isApproved && <p className="text-xs text-green-400 mt-2">تایید شده — قابل ویرایش نیست</p>}
               </div>
 
-              {/* دلیل تاخیر */}
               {!isToday && isDraft && (
-                <div className="bg-orange-50 rounded-xl p-4">
-                  <label className="block text-sm text-orange-700 font-medium mb-1">دلیل تاخیر <span className="text-red-500">*</span></label>
+                <div className="glass-card p-4">
+                  <label className="block text-sm text-orange-300 font-medium mb-2">دلیل تاخیر <span className="text-red-400">*</span></label>
                   <input type="text" value={delayReason} onChange={e => setDelayReason(e.target.value)}
                     placeholder="دلیل ثبت دیرهنگام را بنویسید"
-                    className="w-full border border-orange-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white" />
+                    className="glass-input w-full px-3 py-2.5 text-sm" />
                 </div>
               )}
 
-              {/* اقدامات ناتمام */}
               {showPending && (
-                <div className="bg-white rounded-xl shadow p-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">اقدامات ناتمام قبلی</h4>
+                <div className="glass-card p-4">
+                  <h4 className="text-sm font-medium text-white mb-3">اقدامات ناتمام قبلی</h4>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {pendingItems.map((p, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 bg-orange-50 rounded-lg gap-2">
+                      <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 gap-2">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-700 truncate">{p.action_description}</p>
-                          <p className="text-xs text-gray-400">{p.completion_percent}% | {toJalali(p.report_date)}</p>
+                          <p className="text-sm text-slate-200 truncate">{p.action_description}</p>
+                          <p className="text-xs text-slate-500">{p.completion_percent}% | {toJalali(p.report_date)}</p>
                         </div>
                         <button onClick={() => { addPendingItem(p); setShowPending(false) }}
                           disabled={!!items.find(i => i.action_description === p.action_description)}
-                          className="text-xs px-2 py-1 bg-orange-500 text-white rounded-lg disabled:opacity-40 shrink-0">
+                          className="glass-btn text-xs px-2 py-1 rounded-xl disabled:opacity-40 shrink-0">
                           افزودن
                         </button>
                       </div>
@@ -274,12 +268,15 @@ export default function SubmitReport() {
                 </div>
               )}
 
-              {/* لیست اقدامات */}
               <div className="space-y-3">
                 {items.length === 0 ? (
-                  <div className="bg-white rounded-xl shadow p-6 text-center text-gray-400">
-                    <p className="text-sm">اقدامی ثبت نشده</p>
-                    {isDraft && <button onClick={addNewItem} className="mt-2 text-blue-600 text-sm">+ افزودن اقدام</button>}
+                  <div className="glass-card p-6 text-center">
+                    <p className="text-sm text-slate-400">اقدامی ثبت نشده</p>
+                    {isDraft && (
+                      <button onClick={addNewItem} className="mt-3 glass-btn text-xs px-4 py-2 rounded-xl">
+                        + افزودن اقدام
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <>
@@ -292,12 +289,12 @@ export default function SubmitReport() {
                         onDelete={() => deleteItem(idx)} />
                     ))}
                     {isDraft && (
-                      <div className="flex items-center justify-between bg-white rounded-xl shadow p-3">
-                        <span className="text-sm text-gray-500">
+                      <div className="flex items-center justify-between glass-card p-3">
+                        <span className="text-sm text-slate-400">
                           مجموع: {items.reduce((s,i) => s+(i.duration_minutes||0), 0)} دقیقه
                         </span>
                         <button onClick={addNewItem}
-                          className="text-sm px-3 py-1.5 border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50">
+                          className="glass-btn-secondary text-sm px-3 py-1.5 rounded-xl">
                           + اقدام جدید
                         </button>
                       </div>

@@ -18,68 +18,64 @@ export default function ReportItemRow({ item, index, onSave, onDelete, disabled 
   }
 
   return (
-    <div className="border border-gray-100 rounded-xl p-3 lg:p-4 bg-gray-50 space-y-3">
-      {/* هدر سطر */}
+    <div className="glass-card p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
+        <span className="badge badge-blue">
           اقدام {index + 1}
         </span>
         <div className="flex gap-2">
           {!disabled && changed && (
             <button onClick={() => { onSave(form); setChanged(false) }}
-              className="text-xs px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              className="glass-btn text-xs px-3 py-1.5">
               ذخیره
             </button>
           )}
           {!disabled && (
             <button onClick={onDelete}
-              className="text-xs px-2 py-1 bg-red-50 text-red-500 rounded-lg hover:bg-red-100">
+              className="glass-btn-danger text-xs px-2 py-1.5">
               حذف
             </button>
           )}
         </div>
       </div>
 
-      {/* شرح اقدام */}
       <div>
-        <label className="block text-xs text-gray-500 mb-1">شرح اقدام</label>
+        <label className="block text-xs text-slate-400 mb-1.5">شرح اقدام</label>
         <textarea
           value={form.action_description}
           onChange={e => update('action_description', e.target.value)}
           disabled={disabled}
           rows={form.action_description.length > 80 ? 3 : 2}
-          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none disabled:bg-white disabled:text-gray-600"
+          className="glass-input w-full px-3 py-2 text-sm resize-none disabled:opacity-60"
           placeholder="شرح اقدام انجام شده..." />
       </div>
 
-      {/* مدت و درصد */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-gray-500 mb-1">مدت (دقیقه)</label>
+          <label className="block text-xs text-slate-400 mb-1.5">مدت (دقیقه)</label>
           <input type="number" min="0" value={form.duration_minutes}
             onChange={e => update('duration_minutes', e.target.value)}
             disabled={disabled}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-white" />
+            className="glass-input w-full px-3 py-2 text-sm text-center disabled:opacity-60" />
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">تکمیل: {form.completion_percent}%</label>
+          <label className="block text-xs text-slate-400 mb-1.5">تکمیل: {form.completion_percent}%</label>
           <input type="range" min="0" max="100" step="5" value={form.completion_percent}
             onChange={e => update('completion_percent', e.target.value)}
             disabled={disabled}
-            className="w-full mt-2" />
+            className="w-full mt-2 accent-blue-500" />
         </div>
       </div>
 
-      {/* نوار پیشرفت */}
       <div className="flex items-center gap-2">
-        <div className="flex-1 bg-gray-200 rounded-full h-2">
+        <div className="flex-1 bg-white/5 rounded-full h-2">
           <div className={`h-2 rounded-full transition-all ${
             form.completion_percent >= 100 ? 'bg-green-500' :
             form.completion_percent >= 50 ? 'bg-blue-500' : 'bg-orange-400'
           }`} style={{width:`${form.completion_percent}%`}} />
         </div>
-        <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${
-          form.completion_percent >= 100 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+        <span className={`badge whitespace-nowrap ${
+          form.completion_percent >= 100 ? 'badge-green' : 'badge-orange'
         }`}>
           {form.completion_percent >= 100 ? 'تکمیل' : 'جاری'}
         </span>
