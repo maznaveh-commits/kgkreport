@@ -1,0 +1,248 @@
+import { useState, useEffect, Fragment } from 'react'
+import api from '../api'
+import Toast from '../components/Toast'
+
+const statusBadge = (status) => {
+  if (status === 'approved') return <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">تایید</span>
+  if (status === 'submitted') return <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">ارسال</span>
+  if (status === 'draft') return <span className="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">پیش‌نویس</span>
+  return <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">ثبت نشده</span>
+}
+
+const toJalali = (dateStr) => {
+  if (!dateStr) return ''
+  try { return new Date(dateStr).toLocaleDateString('fa-IR') } catch { return dateStr }
+}
+
+export default function CompanyDashboard() {
+  const [managers, setManagers] = useState([])
+  const [rows, setRows] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [toast, setToast] = useState(null)
+  const [filters, setFilters] = useState({ from_date: '', to_date: '', manager_id: '', status: '' })
+  const [stats, setStats] = useState({ total: 0, approved: 0, submitted: 0, draft: 0 })
+
+  const notify = (m, isErr=false) => setToast({ message: m, type: isErr ? 'error' : 'success' })
+
+  useEffect(() => {
+    api.get('/company/managers').then(r => setManagers(r.data)).catch(() => {})
+    fetchReport()
+  }, [])
+
+  useEffect(() => {
+    setStats({
+      total: rows.length,
+      approved: rows.filter(r => r.report_status === 'approved').length,
+      submitted: rows.filter(r => r.report_status === 'submitted').length,
+      draft: rows.filter(r => r.report_status === 'draft').length,
+    })
+  }, [rows])
+
+  const fetchReport = async (f) => {
+    setLoading(true)
+    try {
+      const fil = f || filters
+      const params = new URLSearchParams()
+      if (fil.from_date) params.append('from_date', fil.from_date)
+      if (fil.to_date) params.append('to_date', fil.to_date)
+      if (fil.manager_id) params.append('manager_id', fil.manager_id)
+      if (fil.status) params.append('status', fil.status)
+      const res = await api.get(`/company/unified-report?${params}`)
+      setRows(res.data)
+    } catch { notify('خطا در دریافت گزارش', true) }
+    finally { setLoading(false) }
+  }
+
+  const resetFilters = () => {
+    const empty = { from_date: '', to_date: '', manager_id: '', status: '' }
+    setFilters(empty)
+    fetchReport(empty)
+  }
+
+  const groupedByManager = rows.reduce((acc, row) => {
+    if (!acc[row.manager_name]) acc[row.manager_name] = []
+    acc[row.manager_name].push(row)
+    return acc
+  }, {})
+
+  return (
+    <div className="space-y-4 max-w-6xl mx-auto">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      <h2 className="text-lg lg:text-xl font-bold text-gray-800">داشبورد مدیر شرکت</h2>
+
+      {/* آمار */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          ['📋', 'کل اقدامات', stats.total, 'bg-blue-50 text-blue-700'],
+          ['✓', 'تایید شده', stats.approved, 'bg-green-50 text-green-700'],
+          ['📤', 'ارسال شده', stats.submitted, 'bg-yellow-50 text-yellow-700'],
+          ['✏️', 'پیش‌نویس', stats.draft, 'bg-orange-50 text-orange-700'],
+        ].map(([icon, label, count, cls]) => (
+          <div key={label} className={`rounded-xl p-3 lg:p-4 ${cls}`}>
+            <div className="text-xl mb-1">{icon}</div>
+            <div className="text-xl lg:text-2xl font-bold">{count}</div>
+            <div className="text-xs lg:text-sm">{label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* فیلتر */}
+      <div className="bg-white rounded-xl shadow p-4">
+        <h3 className="font-medium text-gray-700 mb-3 border-b pb-2 text-sm">فیلتر گزارش</h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">از تاریخ</label>
+            <input type="date" value={filters.from_date}
+              onChange={e => setFilters({...filters, from_date: e.target.value})}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">تا تاریخ</label>
+            <input type="date" value={filters.to_date}
+              onChange={e => setFilters({...filters, to_date: e.target.value})}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">مدیر واحد</label>
+            <select value={filters.manager_id}
+              onChange={e => setFilters({...filters, manager_id: e.target.value})}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+              <option value="">همه مدیران</option>
+              {managers.map(m => <option key={m.id} value={m.id}>{m.full_name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">وضعیت</label>
+            <select value={filters.status}
+              onChange={e => setFilters({...filters, status: e.target.value})}
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+              <option value="">همه</option>
+              <option value="approved">تایید شده</option>
+              <option value="submitted">ارسال شده</option>
+              <option value="draft">پیش‌نویس</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-end mt-3">
+          <button onClick={resetFilters}
+            className="px-4 py-2 text-sm border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50">
+            پاک کردن
+          </button>
+          <button onClick={() => fetchReport()} disabled={loading}
+            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+            {loading ? 'بارگذاری...' : 'اعمال فیلتر'}
+          </button>
+        </div>
+      </div>
+
+      {/* جدول */}
+      {loading ? (
+        <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400 text-sm">در حال بارگذاری...</div>
+      ) : rows.length === 0 ? (
+        <div className="bg-white rounded-xl shadow p-8 text-center text-gray-400">
+          <p className="text-3xl mb-2">📭</p>
+          <p className="text-sm">گزارشی یافت نشد</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {Object.entries(groupedByManager).map(([managerName, managerRows]) => {
+            const mgrRows = managerRows.filter(r => r.person_role === 'manager')
+            const staffGroups = managerRows
+              .filter(r => r.person_role === 'staff')
+              .reduce((acc, row) => {
+                if (!acc[row.person_name]) acc[row.person_name] = []
+                acc[row.person_name].push(row)
+                return acc
+              }, {})
+
+            return (
+              <div key={managerName} className="bg-white rounded-xl shadow overflow-hidden">
+                <div className="bg-blue-700 text-white px-4 py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold">👤 {managerName}</span>
+                    <span className="text-xs bg-blue-600 px-2 py-0.5 rounded-full">مدیر واحد</span>
+                  </div>
+                  <span className="text-xs text-blue-200">{managerRows.length} اقدام</span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="px-3 py-2 text-right text-xs text-gray-500 w-24">تاریخ</th>
+                        <th className="px-3 py-2 text-right text-xs text-gray-500 w-28">نام</th>
+                        <th className="px-3 py-2 text-right text-xs text-gray-500">شرح اقدام</th>
+                        <th className="px-3 py-2 text-center text-xs text-gray-500 w-20">مدت</th>
+                        <th className="px-3 py-2 text-center text-xs text-gray-500 w-24">تکمیل</th>
+                        <th className="px-3 py-2 text-center text-xs text-gray-500 w-24">وضعیت</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mgrRows.map((row, idx) => (
+                        <tr key={`m-${idx}`} className="border-b border-gray-50 bg-blue-50 hover:bg-blue-100">
+                          <td className="px-3 py-2 text-xs text-gray-600">{toJalali(row.report_date)}</td>
+                          <td className="px-3 py-2 text-xs font-medium text-blue-700">{row.person_name}</td>
+                          <td className="px-3 py-2 text-xs text-gray-700">{row.action_description}</td>
+                          <td className="px-3 py-2 text-center text-xs">{row.duration_minutes}</td>
+                          <td className="px-3 py-2">
+                            <div className="flex items-center gap-1">
+                              <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                                <div className={`h-1.5 rounded-full ${row.completion_percent >= 100 ? 'bg-green-500' : 'bg-blue-400'}`}
+                                  style={{width:`${row.completion_percent}%`}} />
+                              </div>
+                              <span className="text-xs text-gray-500 w-7">{row.completion_percent}%</span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-2 text-center">{statusBadge(row.report_status)}</td>
+                        </tr>
+                      ))}
+
+                      {Object.entries(staffGroups).map(([staffName, staffItems]) => (
+                        <Fragment key={`group-${staffName}`}>
+                          <tr className="bg-gray-100 border-b border-gray-200">
+                            <td colSpan={6} className="px-3 py-1.5">
+                              <span className="text-xs font-medium text-gray-600">👥 {staffName}</span>
+                              <span className="text-xs text-gray-400 mr-2">({staffItems.length} اقدام)</span>
+                            </td>
+                          </tr>
+                          {staffItems.map((row, idx) => (
+                            <tr key={`s-${staffName}-${idx}`} className="border-b border-gray-50 hover:bg-gray-50">
+                              <td className="px-3 py-2 text-xs text-gray-600">{toJalali(row.report_date)}</td>
+                              <td className="px-3 py-2 text-xs text-gray-700">{row.person_name}</td>
+                              <td className="px-3 py-2 text-xs text-gray-700">{row.action_description}</td>
+                              <td className="px-3 py-2 text-center text-xs">{row.duration_minutes}</td>
+                              <td className="px-3 py-2">
+                                <div className="flex items-center gap-1">
+                                  <div className="flex-1 bg-gray-200 rounded-full h-1.5">
+                                    <div className={`h-1.5 rounded-full ${row.completion_percent >= 100 ? 'bg-green-500' : row.completion_percent >= 50 ? 'bg-blue-400' : 'bg-orange-400'}`}
+                                      style={{width:`${row.completion_percent}%`}} />
+                                  </div>
+                                  <span className="text-xs text-gray-500 w-7">{row.completion_percent}%</span>
+                                </div>
+                              </td>
+                              <td className="px-3 py-2 text-center">{statusBadge(row.report_status)}</td>
+                            </tr>
+                          ))}
+                        </Fragment>
+                      ))}
+                    </tbody>
+                    <tfoot className="bg-gray-50 border-t border-gray-200">
+                      <tr>
+                        <td colSpan={3} className="px-3 py-2 text-xs text-gray-500">مجموع: {managerRows.length} اقدام</td>
+                        <td className="px-3 py-2 text-center text-xs font-medium text-gray-700">
+                          {managerRows.reduce((s,r) => s+(r.duration_minutes||0), 0)} دقیقه
+                        </td>
+                        <td colSpan={2} />
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
